@@ -45,7 +45,6 @@ router.post('/', (req, res, next) => {
 
   const valid = validate(email, password, confirmPass);
   if (valid.isValid !== true) {
-    console.log(valid.errors)
     return res.status(400).send(valid.errors);
   }
 
