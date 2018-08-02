@@ -37,7 +37,7 @@ function validate(email, password, confirmPass) {
 }
 
 router.post('/', (req, res, next) => {
-  const {email, password, confirmPass} = req.body;
+  const { email, password, confirmPass } = req.body;
 
   if (users.find(user => user.email === email)) {
     return res.status(400).send({message: 'Email is registrated already'});  
