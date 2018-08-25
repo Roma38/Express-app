@@ -23,6 +23,8 @@ router.post("/", (req, res, next) => {
     return res.status(401).send([{ message: "Wrong Email or password" }]);
   }
 
+  // TODO если в базе токенов уже хранится токен для этого пользователя, то мы его обновляем вместо того чтоб добавлять новый токен
+
   const userId = users[userIndex].id;
   const expires = new Date(2592000000 + Date.now());
   const token = uidgen.generateSync();
@@ -31,7 +33,7 @@ router.post("/", (req, res, next) => {
   fs.writeFileSync(tokensTablePath, JSON.stringify(tokensTable));
   return res
     .status(201)
-    .cookie("token", token, { expires, httpOnly: true })
+    .cookie("token", token, { expires, httpOnly: true /* process.env.ENV != 'dev' ? true : false */ })
     .send({});
 });
 

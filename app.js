@@ -9,8 +9,11 @@ var usersRouter = require('./routes/users');
 var postsRouter = require('./routes/posts');
 var registrationRouter = require('./routes/registration');
 var loginRouter = require('./routes/login');
+var addProfileRouter = require('./routes/addProfile');
 
 var app = express();
+
+console.log(process.env.ENV)
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -23,9 +26,19 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:8080");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
+  if ('OPTIONS' == req.method) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+    res.sendStatus(200);
+  }
+  else {
+    next();
+  }
+  /* res.header("Access-Control-Allow-Origin", "http://localhost:8080");
+  res.header("Access-Control-Allow-Methods", "PUT, POST, GET, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");  
+  next(); */
 });
 
 app.use('/', indexRouter);
@@ -33,6 +46,7 @@ app.use('/users', usersRouter);
 app.use('/posts', postsRouter);
 app.use('/registration', registrationRouter);
 app.use('/login', loginRouter);
+app.use("/add-profile", addProfileRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
