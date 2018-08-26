@@ -28,12 +28,19 @@ router.post("/", (req, res, next) => {
   const userId = users[userIndex].id;
   const expires = new Date(2592000000 + Date.now());
   const token = uidgen.generateSync();
+  const tokensIndex = tokensTable.findIndex(item => item.userId === userId);
 
-  tokensTable.push({ token, expires, userId });
+  if (tokensIndex === -1) {
+    tokensTable.push({ token, expires, userId });
+  } else {
+    tokensTable[tokensIndex].token = token;
+    tokensTable[tokensIndex].expires = expires;
+  }
+  
   fs.writeFileSync(tokensTablePath, JSON.stringify(tokensTable));
   return res
     .status(201)
-    .cookie("token", token, { expires, httpOnly: true /* process.env.ENV != 'dev' ? true : false */ })
+    .cookie("token", token, { expires, httpOnly: process.env.ENV === 'dev' ? false : true })
     .send({});
 });
 

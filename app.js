@@ -13,8 +13,6 @@ var addProfileRouter = require('./routes/addProfile');
 
 var app = express();
 
-console.log(process.env.ENV)
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -26,20 +24,26 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
-  if ('OPTIONS' == req.method) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+  res.header('Access-Control-Allow-Origin', 'http://localhost:8080');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+
+  if ('OPTIONS' === req.method) {
     res.sendStatus(200);
-  }
-  else {
+  } else {
     next();
   }
-  /* res.header("Access-Control-Allow-Origin", "http://localhost:8080");
-  res.header("Access-Control-Allow-Methods", "PUT, POST, GET, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");  
-  next(); */
 });
+
+app.use((req, res, next) => {
+                              /* Читаем куки пользователя. Смотрим есть ли в них токен. Если есть токен, то мы проверяем есть ли такой токен в базе и валиден ли он (не заэкспайрился).
+     Если токен валиден, то мы можен записать id пользователя в response объект.
+     
+     res.meta = {
+       userId: id,
+     };
+     */
+                            });
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
