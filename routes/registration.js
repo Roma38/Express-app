@@ -1,16 +1,11 @@
 var express = require('express');
 var router = express.Router();
-var fs = require('fs');
 var path = require('path');
 
 var dbHandler = require('../modules/dbHandler');
+const usersDB = require("../public/database/users/controller.js");
 
-const usersTablePath = path.join(__dirname, '../public/database/users.json'); 
-let users;
-
-dbHandler.checkJSONexistence(usersTablePath);
-
-users = JSON.parse(fs.readFileSync(usersTablePath));
+dbHandler.checkJSONexistence(path.join(__dirname, '../public/database/users/users.json'));
 
 function validate(email, password, confirmPass) {
   let errors = [];
@@ -39,19 +34,19 @@ function validate(email, password, confirmPass) {
 router.post('/', (req, res, next) => {
   const { email, password, confirmPass } = req.body;
 
-  if (users.find(user => user.email === email)) {
+  if (usersDB.read().find(user => user.email === email)) {
     return res.status(400).send([{message: 'Email is registrated already'}]);
   }
 
   const valid = validate(email, password, confirmPass);
+  
   if (valid.isValid !== true) {
     return res.status(400).send(valid.errors);
   }
 
-  const id = dbHandler.setId(users);
-  users.push({ id, email, password });
+  const id = dbHandler.setId(usersDB.read());
+  usersDB.create({ id, email, password }).save();
 
-  fs.writeFileSync(usersTablePath, JSON.stringify(users));
   return res.status(201).send({ id, email });
 });
 

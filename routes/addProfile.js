@@ -1,26 +1,52 @@
 var express = require("express");
 var router = express.Router();
-var fs = require("fs");
-var path = require("path");
 
-var dbHandler = require("../modules/dbHandler");
+const usersDB = require("../public/database/users/controller.js");
 
-const usersTablePath = path.join(__dirname, "../public/database/users.json");
-const tokensTablePath = path.join(__dirname, "../public/database/tokens.json");
-let users = JSON.parse(fs.readFileSync(usersTablePath));
-let tokensTable = JSON.parse(fs.readFileSync(tokensTablePath));
+router.get("/", (req, res, next) => {
+  if (res.$meta.isLoggedIn) {
+    const user = usersDB.read().find(user => user.id === res.$meta.userId);
+    const {
+      firstName,
+      lastName,
+      gender,
+      birthDate,
+      country,
+      city,
+      phoneNumber
+    } = user;
+    
+    return res.send({
+      firstName,
+      lastName,
+      gender,
+      birthDate,
+      country,
+      city,
+      phoneNumber
+    });
+  } else {
+    return res.status(401).send([{ message: "Login first" }]);
+  }
+});
 
 router.put("/", (req, res, next) => {
   let errors = [];
   const { firstName, lastName, gender, birthDate, country, city, phoneNumber } = req.body;
 
   if (res.$meta.isLoggedIn) {
-    const userIndex = users.findIndex(user => user.id === res.$meta.userId);
-    users[userIndex] = { ...users[userIndex], firstName, lastName, gender, birthDate, country, city, phoneNumber };
-    fs.writeFileSync(usersTablePath, JSON.stringify(users));
+    const userIndex = usersDB.read().findIndex(user => user.id === res.$meta.userId);
+    usersDB.update(userIndex, {
+      firstName,
+      lastName,
+      gender,
+      birthDate,
+      country,
+      city,
+      phoneNumber
+    }).save();
   }
 
-  console.log(req.body, req.cookies);
   res.send();
 });
 
