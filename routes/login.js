@@ -40,7 +40,10 @@ router.post("/", (req, res, next) => {
   fs.writeFileSync(tokensTablePath, JSON.stringify(tokensTable));
   return res
     .status(201)
-    .cookie("token", token, { expires, httpOnly: process.env.ENV === 'dev' ? false : true })
+    .cookie("token", token, {
+      expires,
+      httpOnly: process.env.ENV === "dev" ? false : true
+    })
     .send({});
 });
 
