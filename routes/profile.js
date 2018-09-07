@@ -6,6 +6,8 @@ const usersDB = require("../public/database/users/controller.js");
 router.get("/", (req, res, next) => {
   if (res.$meta.isLoggedIn) {
     const user = usersDB.read().find(user => user.id === res.$meta.userId);
+    console.log(user);
+    console.log(res.$meta.userId);
     const {
       firstName,
       lastName,
@@ -31,7 +33,6 @@ router.get("/", (req, res, next) => {
 });
 
 router.put("/", (req, res, next) => {
-  let errors = [];
   const { firstName, lastName, gender, birthDate, country, city, phoneNumber } = req.body;
 
   if (res.$meta.isLoggedIn) {
@@ -45,6 +46,8 @@ router.put("/", (req, res, next) => {
       city,
       phoneNumber
     }).save();
+  } else {
+    res.status(401).send([{ message: "Login first" }]);
   }
 
   res.send();

@@ -1,15 +1,13 @@
 var express = require("express");
 var router = express.Router();
-var path = require("path");
 var UIDGenerator = require("uid-generator");
 var uidgen = new UIDGenerator();
 
-const dbHandler = require("../modules/dbHandler");
 const tokensDB = require("../public/database/tokens/controller.js");
 const usersDB = require("../public/database/users/controller.js");
 
-dbHandler.checkJSONexistence(path.join(__dirname, '../public/database/tokens/tokens.json'));
-dbHandler.checkJSONexistence(path.join(__dirname, '../public/database/users/users.json'));
+/* dbHandler.checkJSONexistence(path.join(__dirname, '../public/database/tokens/tokens.json'));
+dbHandler.checkJSONexistence(path.join(__dirname, '../public/database/users/users.json')); */
 
 router.post("/", (req, res, next) => {
   const { email, password } = req.body;
@@ -19,9 +17,7 @@ router.post("/", (req, res, next) => {
     return res.status(401).send([{ message: "Wrong Email or password" }]);
   }
 
-  // TODO если в базе токенов уже хранится токен для этого пользователя, то мы его обновляем вместо того чтоб добавлять новый токен
-
-  const expires = new Date(2592000000 + Date.now());
+  const expires = new Date(30 * 24 * 60 * 60 * 1000 + Date.now());
   const token = uidgen.generateSync();
   const tokensIndex = tokensDB.read().findIndex(item => item.userId === user.id);
 

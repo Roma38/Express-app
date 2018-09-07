@@ -9,7 +9,7 @@ var usersRouter = require('./routes/users');
 var postsRouter = require('./routes/posts');
 var registrationRouter = require('./routes/registration');
 var loginRouter = require('./routes/login');
-var addProfileRouter = require('./routes/addProfile');
+var profileRouter = require('./routes/profile');
 
 const tokensDB = require("./public/database/tokens/controller.js");
 
@@ -55,9 +55,6 @@ app.use((req, res, next) => {
   }
 
   next();
-    /* Читаем куки пользователя. Смотрим есть ли в них токен. Если есть токен, то мы проверяем есть ли такой токен в базе и валиден ли он (не заэкспайрился).
-     Если токен валиден, то мы можен записать id пользователя в response объект. */
-    
 });
 
 app.use('/', indexRouter);
@@ -65,7 +62,7 @@ app.use('/users', usersRouter);
 app.use('/posts', postsRouter);
 app.use('/registration', registrationRouter);
 app.use('/login', loginRouter);
-app.use('/add-profile', addProfileRouter);
+app.use('/profile', profileRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -1,25 +1,30 @@
 var express = require('express');
 var router = express.Router();
-var fs = require('fs');
-var path = require('path');
 
-const postsTablePath = path.join(__dirname, '../public/database/posts.json');
-let posts;
-
-if (!fs.existsSync(postsTablePath)) {
-  fs.writeFileSync(postsTablePath, '[]');
-}
-
-posts = JSON.parse(fs.readFileSync(postsTablePath));
+const postsDB = require("../public/database/posts/controller.js");
+const usersDB = require("../public/database/users/controller.js");
 
 router.get('/', function (req, res, next) {
-  res.send(posts);
+  res.send({ posts: postsDB.read(), isLoggedIn: res.$meta.isLoggedIn });
 });
 
 router.post('/', (req, res, next) => {
-  posts.push(req.body);
-  fs.writeFileSync(postsTablePath, JSON.stringify(posts));
-  res.send(req.body);
+  if (!res.$meta.isLoggedIn){
+    return res
+      .status(401)
+      .send([{ message: "Login first" }]);
+  }
+
+  const { postTitle, postBody } = req.body;
+  const userId = res.$meta.userId;
+  const author = usersDB.read().find(user => user.id === userId).firstName;
+  const postDate = new Date();
+  const id = postsDB.getBiggestId();
+
+  postsDB
+    .create({ id, postTitle, postBody, author, postDate, userId })
+    .save();
+  res.send(postsDB.read());
 });
 
 module.exports = router;
